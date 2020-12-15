@@ -1,0 +1,65 @@
+{
+    "builders": [
+      {
+        "name": "ubuntu-2004",
+        "type": "virtualbox-iso",
+        "guest_os_type": "ubuntu-64",
+        "headless": false,
+  
+        "iso_url": "C:/Users/Manuja/Documents/ISOs/ubuntu-20.04.1-legacy-server-amd64.iso",
+        "iso_checksum": "f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2",
+        "vm_name": "ubuntu-20-legacy-vbox",
+  
+        "ssh_username": "ubuntu",
+        "ssh_password": "packer",
+        "ssh_port": 22,
+        "ssh_timeout": "60000s",
+        "ssh_wait_timeout": "60000s",
+
+        "floppy_files": [
+          "http/preseed.cfg"
+        ],
+        "memory": 1024,
+        "disk_size": 10240,
+
+        "boot_wait": "5s",
+        "boot_command": [
+          "<esc><wait>",
+          "<esc><wait>",
+          "<enter><wait>",
+          "/install/vmlinuz",
+          " initrd=/install/initrd.gz",
+          " priority=critical",
+          " locale=en_US",
+          " file=/media/preseed.cfg",
+          " -- <wait>",
+          "<enter><wait>"
+        ],
+        "shutdown_command": "echo 'ubuntu'|sudo -S shutdown -P now",
+        "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+        "virtualbox_version_file": ".vbox_version",
+        "vboxmanage": [
+        [
+            "modifyvm",
+            "{{.Name}}",
+            "--memory",
+            "1024"
+        ],
+        [
+            "modifyvm",
+            "{{.Name}}",
+            "--cpus",
+            "1"
+        ]
+        ]
+      }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "scripts/init.sh",
+            "expect_disconnect": true,
+            "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+        }  
+    ]
+  }
